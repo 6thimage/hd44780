@@ -1,0 +1,5 @@
+This is the initial version of my interface library for the HD44780 lcds.
+
+This library is designed so that it can be used on any architecture by just changing the implementation header. Currently only the stm32f4 (which is an arm cortex m4 device) is supported. With a few changes this would support all cortex m devices. It is my intention to add more architectures to this library over time.
+
+This library is licensed under CC-BY-SA.

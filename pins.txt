@@ -1,0 +1,17 @@
+lcd	mcu	function
+1	gnd	Ground
+2	vcc	VCC
+3	---	Contrast adjustment
+4	pc2	Register Select
+5	pc1	Read/Write
+6	pc0	Clock Enable
+7	pa0	Bit 0
+8	pa1	Bit 1
+9	pa2	Bit 2
+10	pa3	Bit 3
+11	pa4	Bit 4
+12	pa5	Bit 5
+13	pa6	Bit 6
+14	pa7	Bit 7
+15	vcc	Backlight Anode
+16	gnd	Backlight Cathode
