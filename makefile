@@ -6,6 +6,8 @@ MAPFILE = $(ELFIMAGE:.elf=.map)
 # user source code
 C_DIR = code
 C_SOURCE = test.c hd44780.c
+A_DIR = code
+A_SOURCE =
 
 # optimisation level
 # 0 - reduce compilation time and make debugging work (default)
@@ -26,7 +28,7 @@ WORK_DIR = work
 LIB_DIR = ../libs
 
 # location of the cmsis library
-CMSIS_INC = $(LIB_DIR)/CMSIS/include
+CMSIS_INC = $(LIB_DIR)/CMSIS/Include
 
 # stm specific
 STM32_GEN_INC = $(LIB_DIR)/CMSIS/Device/ST/STM32F4xx/Include
@@ -43,16 +45,17 @@ SYSTEM_OBJ = $(WORK_DIR)/system_stm32f4xx.o
 LINK_SCRIPT = $(LIB_DIR)/stm32_flash.ld
 
 # gcc
-AS = arm-none-eabi-as.exe
-CC = arm-none-eabi-gcc.exe
-OBJCOPY = arm-none-eabi-objcopy.exe
-CODESIZE = arm-none-eabi-size.exe
+AS = arm-none-eabi-as
+CC = arm-none-eabi-gcc
+OBJCOPY = arm-none-eabi-objcopy
+CODESIZE = arm-none-eabi-size
 
 # target arch
 CPU = cortex-m4
 
 # user source code objs
 WORK_OBJS = $(addprefix $(WORK_DIR)/,$(C_SOURCE:.c=.o))
+ASM_OBJS = $(addprefix $(WORK_DIR)/,$(A_SOURCE:.s=.os))
 
 # assembler flags
 AFLAGS = -mcpu=$(CPU) -mthumb -mlittle-endian -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb-interwork
@@ -61,7 +64,7 @@ AFLAGS += -I$(CMSIS_INC) -I$(STM32_GEN_INC) -I$(STM32_PERIPH_INC) -I$(LIB_DIR)
 # compiler flags
 CFLAGS = -c -mcpu=$(CPU) -mthumb -Wall -O$(OPTIM) -mlittle-endian -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb-interwork -mtune=$(CPU)
 CFLAGS += -I$(CMSIS_INC) -I$(STM32_GEN_INC) -I$(STM32_PERIPH_INC) -I$(LIB_DIR)
-CFLAGS += -DSTM32F4XX -DHSE_VALUE=8000000
+CFLAGS += -DSTM32F4XX -DHSE_VALUE=\(\(uint32_t\)8000000\)
 
 # linker flags
 LK    = -static -mcpu=$(CPU) -mthumb -mlitle-endian -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb-interwork -nostartfiles
@@ -77,6 +80,8 @@ ifeq ($(DEBUG_MODE),1)
 ELFSTRIP	= $(OBJCOPY) -O elf32-littlearm
 ELFTOBIN	= $(OBJCOPY) -I elf32-little -O binary
 BINTOELF	= $(OBJCOPY) -I binary -O elf32-little
+
+CFLAGS += -ggdb
 
 else
 
@@ -95,9 +100,9 @@ endif
 
 default: rom
 
-rom: dirs $(WORK_OBJS) $(START_OBJ) $(SYSTEM_OBJ)
+rom: dirs $(ASM_OBJS) $(WORK_OBJS) $(START_OBJ) $(SYSTEM_OBJ)
 	@echo Linking ...
-	@$(CC) $(WORK_OBJS) $(START_OBJ) $(SYSTEM_OBJ) $(STM32_PERIPH_LIB) \
+	@$(CC) $(ASM_OBJS) $(WORK_OBJS) $(START_OBJ) $(SYSTEM_OBJ) $(STM32_PERIPH_LIB) \
 	$(LK) $(MAP) $(MAPFILE) $(LDESC) $(LINK_SCRIPT) -o $(ELFIMAGE)
 	@echo Converting to bin ...
 	@$(ELFTOBIN) $(ELFIMAGE) $(BINIMAGE)
@@ -108,18 +113,22 @@ rom: dirs $(WORK_OBJS) $(START_OBJ) $(SYSTEM_OBJ)
 
 dirs:
 	@echo Creating work folder structure
-	@if not exist $(WORK_DIR) mkdir $(subst /,\,$(WORK_DIR))
+	@test -d $(WORK_DIR) || mkdir $(subst /,\,$(WORK_DIR))
 
 clean:
 	@echo Removing work folder structure
-	@if exist work rmdir /Q /S work
-	@if exist $(ELFIMAGE) del $(ELFIMAGE)
-	@if exist $(BINIMAGE) del $(BINIMAGE)
-	@if exist $(MAPFILE) del $(MAPFILE)
+	@if [ -d work ]; then rm -r work; fi
+	@if [ -f $(ELFIMAGE) ]; then rm $(ELFIMAGE); fi
+	@if [ -f $(BINIMAGE) ]; then rm $(BINIMAGE); fi
+	@if [ -f $(MAPFILE) ]; then rm $(MAPFILE); fi
 
 $(addprefix $(WORK_DIR)/,%.o):$(addprefix $(C_DIR)/,%.c)
 	@echo $<
 	@$(CC) $(CFLAGS) -c $< -o $@
+	
+$(addprefix $(WORK_DIR)/,%.os):$(addprefix $(A_DIR)/,%.s)
+	@echo $<
+	@$(AS) $(AFLAGS) $< -o $@
 
 $(START_OBJ):$(START_SRC)
 	@echo $<
