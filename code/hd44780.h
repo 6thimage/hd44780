@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #ifdef STM32F4XX
-#include "hd44780_stm32.h"
+#include "hd44780_stm32f4.h"
 #endif
 
 #define HD44780_CMD_CLEAR            0x1      /*!< Clears display */

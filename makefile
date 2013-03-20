@@ -38,11 +38,11 @@ STM32_PERIPH_LIB = $(LIB_DIR)/STM32F4xx_StdPeriph_Driver/STM32F4xx_StdPeriph_Dri
 # startup code
 START_SRC = $(LIB_DIR)/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc_ride7/startup_stm32f4xx.s
 START_OBJ = $(WORK_DIR)/startup_stm32f4xx.o
-SYSTEM_SRC = $(LIB_DIR)/system_stm32f4xx.c
+SYSTEM_SRC = $(LIB_DIR)/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c
 SYSTEM_OBJ = $(WORK_DIR)/system_stm32f4xx.o
 
 # linker script
-LINK_SCRIPT = $(LIB_DIR)/stm32_flash.ld
+LINK_SCRIPT = $(LIB_DIR)/stm32f4xx_flash.ld
 
 # gcc
 AS = arm-none-eabi-as
