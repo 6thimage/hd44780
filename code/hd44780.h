@@ -3,8 +3,12 @@
 
 #include <stdint.h>
 
-#ifdef STM32F4XX
+#if defined(STM32F4XX)
 #include "hd44780_stm32f4.h"
+#elif defined(STM32L1XX)
+#include "hd44780_stm32l1.h"
+#else
+#error "Processor not defined or not supported"
 #endif
 
 #define HD44780_CMD_CLEAR            0x1      /*!< Clears display */

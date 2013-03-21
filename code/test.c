@@ -1,6 +1,14 @@
+#if defined(STM32F4XX)
 #include <stm32f4xx.h>
 #include <stm32f4xx_gpio.h>
 #include <stm32f4xx_rcc.h>
+#elif defined(STM32L1XX)
+#include <stm32l1xx.h>
+#include <stm32l1xx_gpio.h>
+#include <stm32l1xx_rcc.h>
+#else
+#error "Unknown processor"
+#endif
 
 #include "hd44780.h"
 
@@ -25,6 +33,7 @@ void init_io(void)
 {
     GPIO_InitTypeDef io_init;
 
+#if defined(STM32F4XX)
     /* enable peripheral clock for pa and pc */
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
@@ -42,6 +51,25 @@ void init_io(void)
     /* init pc */
     io_init.GPIO_Pin = GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2;
     GPIO_Init(GPIOC, &io_init);
+#elif defined(STM32L1XX)
+    /* enable peripheral clock for pb and pc */
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+
+    /* settings for both pa and pc */
+    io_init.GPIO_Mode = GPIO_Mode_OUT;
+    io_init.GPIO_OType = GPIO_OType_PP;
+    io_init.GPIO_Speed = GPIO_Speed_40MHz;
+    io_init.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+    /* init pc */
+    io_init.GPIO_Pin = GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7;
+    GPIO_Init(GPIOC, &io_init);
+
+    /* init pb */
+    io_init.GPIO_Pin = GPIO_Pin_8|GPIO_Pin_9|GPIO_Pin_10;
+    GPIO_Init(GPIOB, &io_init);
+#endif
 }
 
 int main(void)
@@ -64,7 +92,7 @@ int main(void)
 
     while(1)
     {
-        delayms(150);
+        delayms(300);
         hd44780_shift(0,1);
     }
 
