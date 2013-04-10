@@ -38,12 +38,14 @@
 
 #define hd44780_clear()                       hd44780_command(0,HD44780_CMD_CLEAR)
 #define hd44780_cursor_home()                 hd44780_command(0,HD44780_CMD_RETURN_HOME)
+#define hd44780_cursor_firstline_home()       hd44780_command(0,HD44780_CMD_DDRAM_ADDR|0x0)
+#define hd44780_cursor_secondline_home()      hd44780_command(0,HD44780_CMD_DDRAM_ADDR|0x40)
 #define hd44780_entry(inc,shift)              hd44780_command(0,HD44780_CMD_ENTRY_MODE|(!inc?0:HD44780_BIT_ENTRY_INC)|(!shift?0:HD44780_BIT_ENTRY_SHIFT))
 #define hd44780_display(on,blink,cursor)      hd44780_command(0,HD44780_CMD_DISPLAY|(!on?0:HD44780_BIT_DISPLAY_ON)|(!blink?0:HD44780_BIT_DISPLAY_BLINK)|(!cursor?0:HD44780_BIT_DISPLAY_CURSOR))
 #define hd44780_shift(lr,cd)                  hd44780_command(0,HD44780_CMD_SHIFT|(!lr?0:HD44780_BIT_SHIFT_RIGHT)|(!cd?0:HD44780_BIT_SHIFT_DISPLAY))
 #define hd44780_function(bus,font,lines)      hd44780_command(0,HD44780_CMD_FUNCTION|(!bus?0:HD44780_BIT_FUNCTION_BUS)|(!font?0:HD44780_BIT_FUNCTION_FONT)|(!lines?0:HD44780_BIT_FUNCTION_LINES))
-#define hd44780_cgram(addr)                   hd44780_command(0,HD44780_CMD_CGRAM_ADDR|(addr&0x20))
-#define hd44780_ddram(addr)                   hd44780_command(0,HD44780_CMD_DDRAM_ADDR|(addr&0x40))
+#define hd44780_cgram(addr)                   hd44780_command(0,HD44780_CMD_CGRAM_ADDR|(addr&0x3f))
+#define hd44780_ddram(addr)                   hd44780_command(0,HD44780_CMD_DDRAM_ADDR|(addr&0x7f))
 #define hd44780_write_char(c)                 hd44780_command(1,c&0xff)
 
 void hd44780_command(uint16_t rs, uint16_t cmd);
